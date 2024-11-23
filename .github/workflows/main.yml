@@ -1,0 +1,41 @@
+nom: Flux de travail pour Flash-MD
+
+sur:
+  - push
+  - pull_request
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v2
+
+      - name: Installation des dépendances
+        run: |
+          npm install
+
+      - name: Construction du bot
+        run: |
+          npm run build
+
+      - name: Déploiement du bot
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /chemin/vers/le/bot
+            npm start
+
+      - name: Notification de déploiement
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.TOKEN }}
+          event-type: deployment
+          client-payload: '{"deployment": "Flash-MD"}'
+
+
+Ce code de flux de travail effectue les étapes suivantes :
+
